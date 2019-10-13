@@ -1,0 +1,5 @@
+En braille standard, un caractère est représenté dans une matrice de six points sur deux colonnes, chaque caractère étant formé par un à six points en relief. Ces points sont conventionnellement numérotés de haut en bas et de gauche à droite, selon le schéma suivant :
+
+Par exemple, la lettre c se représente par les deux points supérieurs, soit la combinaison 1,4. Ce système permet de représenter jusqu’à 63 caractères (26-1), une matrice sans aucun point représentant une espace.
+
+La signification de chaque symbole dépend de la langue utilisée, ce qui explique pourquoi les braille japonais, coréen, cyrillique et autres diffèrent du braille français. Les langues utilisant l’alphabet latin emploient le plus souvent le même codage pour les lettres de base, mais les lettres accentuées, d’autres symboles et, parfois, les signes de ponctuation diffèrent. 
