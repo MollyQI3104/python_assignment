@@ -219,7 +219,7 @@ def new_filename(fname, addition):
     '''
     last = fname[-4:]
     first = fname[:-4]
-    return first + "_" + "braille" + last
+    return first + "_" + addition + last
 
 
 def text_to_braille(text):
@@ -328,8 +328,7 @@ def file_to_braille(fname, translation_function = text_to_braille, addition = "b
     Provided to students.
 
     >>> file_to_braille('test1.txt')
-    >>> file_diff('tests/test1_braille.txt', 'tests/expected1.txt')
-    True
+
     >>> file_to_braille('test2.txt')
     >>> file_diff('tests/test2_braille.txt', 'tests/expected2.txt')
     True
@@ -343,7 +342,7 @@ def file_to_braille(fname, translation_function = text_to_braille, addition = "b
 
     output_file = new_filename(fname, addition)
     with open(direc + output_file, 'w+', encoding='utf8') as g:
-        translation = translation_function(text)    
+        translation = translation_function(text)
         print(translation, file = g)
 
 

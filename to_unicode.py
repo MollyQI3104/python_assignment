@@ -148,6 +148,8 @@ def is_ostring(s):
     #
     # return False
 
+    if s == None:
+        return False
     res = s.split("\n")
     if len(res) != 3 and len(res) != 4 :
         return False

@@ -122,9 +122,13 @@ def convert_punctuation(c):
     ..
     oo
     oo
+    >>> print(convert_punctuation(')'))
+    ..
+    .o
+    oo
     '''
     #
-   
+
     if is_punctuation(c):
         return "..\n" + decade_pattern(PUNCTUATION.find(c))
     return None

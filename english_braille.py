@@ -1,7 +1,14 @@
 
 from text_to_braille import *
+from char_to_braille import *
+from to_unicode import *
+from helpers import *
+import filecmp
+
+from Braille_translator.text_to_braille import file_to_braille, new_filename
 
 ENG_CAPITAL = '..\n..\n.o'
+ENG_NUM_END = '..\n.o\n.o'
 
 # You may want to define more global variables here
 
@@ -12,7 +19,7 @@ def two_letter_contractions(text):
     '''(str) -> str
     Process English text so that the two-letter contractions are changed
     to the appropriate French accented letter, so that when this is run
-    through the French Braille_translator we get English Braille.
+    through the French Braille translator we get English Braille.
     Provided to students. You should not edit it.
 
     >>> two_letter_contractions('chat')
@@ -27,6 +34,8 @@ def two_letter_contractions(text):
     'ÎË'
     >>> two_letter_contractions('ShOwEd tHE NEIGHBOURHOOD Where') 
     'ÎŒË tHE NEIÊBÜRHOOD Ûïe'
+
+
     '''
     combos = ['ch', 'gh', 'sh', 'th', 'wh', 'ed', 'er', 'ou', 'ow']
     for i, c in enumerate(combos):
@@ -43,7 +52,7 @@ def whole_word_contractions(text):
     '''(str) -> str
     Process English text so that the full-word contractions are changed
     to the appropriate French accented letter, so that when this is run
-    through the French Braille_translator we get English Braille.
+    through the French Braille translator we get English Braille.
 
     If the full-word contraction appears within a word, 
     contract it. (e.g. 'and' in 'sand')
@@ -89,7 +98,7 @@ def convert_contractions(text):
     Convert English text so that both whole-word contractions
     and two-letter contractions are changed to the appropriate
     French accented letter, so that when this is run
-    through the French Braille_translator we get English Braille.
+    through the French Braille translator we get English Braille.
 
     Refer to the docstrings for whole_word_contractions and 
     two_letter_contractions for more info.
@@ -106,15 +115,17 @@ def convert_contractions(text):
     'aéeù parenàtical sç'
     >>> convert_contractions('Showed The Neighbourhood Where')
     'Îœë À Neiêbürhood Ûïe'
+    >>> convert_contractions('standardized')
+    'stçardizë'
     '''
-
+    #
+    
     res = text.split(" ")
-    for word in res:
-        word_new = two_letter_contractions(
-            whole_word_contractions(word))
+    for word in res: 
+        word_new = two_letter_contractions(whole_word_contractions(word))
         text = text.replace(word, word_new)
     return text
-
+    
 def convert_quotes(text):
     '''(str) -> str
     Convert the straight quotation mark into open/close quotations.
@@ -129,7 +140,8 @@ def convert_quotes(text):
     >>> convert_quotes('" "o" "i" "')
     '“ ”o“ ”i“ ”'
     '''
-
+    #
+    
     res = ""
     i = 0
     for word in text:
@@ -143,6 +155,7 @@ def convert_quotes(text):
 
     return res
 
+
 ####################################################
 # Put your own helper functions here!
 
@@ -151,45 +164,82 @@ def convert_parentheses(text):
     Convert open/close parentheses used in French Braille to parentheses used in English Braille.
     >>> convert_parentheses('(')
     '"'
-    >>> convert_parentheses('aaaaaaaa(a')
-    'aaaaaaaa"a'
+    >>> convert_parentheses('aa aaaaaa(a')
+    'aa aaaaaa"a'
+    >>> convert_parentheses('ss(saw(2(')
+    'ss"saw"2"'
     '''
-    for i, parentheses in enumerate(text):
-        if parentheses == "(" or parentheses == ")":
-            return text.replace(text[i], '"')
+
+    text = text.replace("(", '"')
+    text = text.replace(")", '"')
+    return text
     
 def convert_q_mark(text):
     '''(str) -> str
-    >>> convert_punctuation('www?')
+    >>> convert_q_mark('www?')
     'www('
     '''
-    for i, q_mark in enumerate(text):
-        if q_mark == "?":
-            return text.replace(text[i], '(')
 
-def convert_punctuation(text):
-    '''(str) -> str
-    Convert parentheses, quotes and question mark in form of French Braille to English Braille.
-    >>> convert_punctuation('www?')
-    'www('
-    '''
-    for i, t in enumerate(text):
-        text = text.replace(t, convert_quotes(t))
-    for i, t in enumerate(text):
-        text = text.replace(t, convert_parentheses(t))
-    for i, t in enumerate(text):
-        text = text.replace(t, convert_q_mark(t))
+    text = text.replace("?", '(')
     return text
 
-def indicate_number_en(text):
-    for i, num in enumerate(text):
-        if is_digit(num):
-            return text.replace
+def convert_punctuation2(text):
+    '''(str) -> str
+    Convert parentheses, quotes and question mark in form of French Braille to English Braille.
+    >>> convert_punctuation2('www?')
+    'www('
+    >>> convert_punctuation2('w wwww?')
+    'w wwww('
+    >>> convert_punctuation2('3456 12 ?& ? hi')
+    '3456 12 (& ( hi'
+    '''
 
+    res = text.split(" ")
+    for punctuation in res:
+        punctuation_new = convert_q_mark(
+                            (convert_parentheses(
+                                convert_quotes(punctuation))))
+        text = text.replace(punctuation, punctuation_new)
+    return text 
+
+def convert_num(text):
+    '''
+    >>> convert_num('2')
+    '⠼⠃⠰'
+    '''
+    # res = ''
+    # text_without_NUMBER = text.replace(ostring_to_unicode(NUMBER), "")
+    # for i in range(len(text_without_NUMBER)):
+    #     if is_digit(text_without_NUMBER[i]): # text_without_NUMBER is in form of unicode, cant be tested using is_digit
+    #         if not is_digit(text_without_NUMBER[i+1]) and i < len(text_without_NUMBER)-1:
+    #             res += ostring_to_unicode(ENG_NUM_END) + ostring_to_unicode('\n\n')
+    #         if i == len(text_without_NUMBER)-1:
+    #             res += ostring_to_unicode(ENG_NUM_END)
+    #         if not is_digit(text_without_NUMBER[i-1]) and i >= 0:
+    #             res # add in front of num
+    # return res
+
+    res = ""
+    for i in range(len(text)):
+        if is_digit(text[i]):
+            if i-1 >=0 and not is_digit(text[i-1]):
+                res += ostring_to_unicode(NUMBER)
+            elif i == 0:
+                res += ostring_to_unicode(NUMBER)
+
+            res += ostring_to_unicode(convert_digit(text[i]))
+
+            if i+1 < len(text) and not is_digit(text[i+1]):
+                res += ostring_to_unicode(ENG_NUM_END)
+            elif i == len(text)-1:
+                res += ostring_to_unicode(ENG_NUM_END)
+
+        else: res += text[i]
+    return res
 
 ####################################################
 
-def english_text_to_braille(text):
+def english_text_to_braille(text2):
     '''(str) -> str
     Convert text to English Braille. Text could contain new lines.
 
@@ -230,31 +280,48 @@ def english_text_to_braille(text):
     '⠠⠿ ⠩⠁⠏⠑⠎ ⠾ ⠉⠕⠇⠳⠗⠦'
     >>> english_text_to_braille('(Parenthetical)\\n\\n"Quotation"')
     '⠶⠠⠏⠁⠗⠑⠝⠷⠞⠊⠉⠁⠇⠶\\n\\n⠦⠠⠟⠥⠕⠞⠁⠞⠊⠕⠝⠴'
+    >>> english_text_to_braille('standardized')
+    '⠎⠞⠯⠁⠗⠙⠊⠵⠫'
+    >>> english_text_to_braille('understand')
+    '⠥⠝⠙⠻⠎⠞⠯'
     '''
     # You may want to put code after this comment. You can also delete this comment.
 
     # Here's a line we're giving you to get started: change text so the
     # contractions become the French accented letter that they correspond to
-    text = convert_contractions(text)
 
-    # You may want to put code after this comment. You can also delete this comment.
-#    text = convert_punctuation(text)
+    paragraphs = text2.split('\n')
+    total = ''
 
-    # Run the text through the French Braille_translator
-    text = text_to_braille(text)
+    for i, text in enumerate(paragraphs):
+        text = convert_contractions(text)
 
-    # You may want to put code after this comment. You can also delete this comment.
-    # Replace the French indication of number with English indication of number
-#    text = text.replace(ostring_to_unicode(NUMBER), "")     #TypeError: replace() argument 2 must be str, not None
+        text = convert_punctuation2(text)
 
+        text = convert_num(text)
 
-    # Replace the French capital with the English capital
-    text = text.replace(ostring_to_unicode(CAPITAL), ostring_to_unicode('..\n..\n.o'))
+        # You may want to put code after this comment. You can also delete this comment.
 
-    # You may want to put code after this comment. You can also delete this comment.
+        # Run the text through the French Braille translator
+        text = text_to_braille(text)
 
-    
-    return text
+        # You may want to put code after this comment. You can also delete this comment.
+
+        # Replace the French capital with the English capital
+        text = text.replace(ostring_to_unicode(CAPITAL), ostring_to_unicode('..\n..\n.o'))
+
+        text = text.replace('“', ostring_to_unicode('..\no.\noo'))
+
+        text = text.replace('”', ostring_to_unicode('..\n.o\noo'))
+
+        # You may want to put code after this comment. You can also delete this comment.
+
+        total += text
+
+        if i < len(paragraphs) - 1: # keep paragraphs separate but no extra \ns
+            total += '\n'
+
+    return total
 
 
 def english_file_to_braille(fname):
@@ -273,9 +340,8 @@ def english_file_to_braille(fname):
     >>> english_file_to_braille('test6.txt')
     >>> file_diff('tests/test6_eng_braille.txt', 'tests/expected6.txt')
     True
-    '''  
+    '''
     file_to_braille(fname, english_text_to_braille, "eng_braille")
-
 
 if __name__ == '__main__':
     doctest.testmod()    # you may want to comment/uncomment along the way
